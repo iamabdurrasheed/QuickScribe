@@ -1,0 +1,134 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif; /* Modern font */
+  }
+  
+  /* Body and Background */
+  body {
+    background-color: #121212; /* Dark Background */
+    color: #ffffff; /* White Text */
+    min-height: 100vh;
+  }
+  
+  /* Navbar Styling */
+  .navbar {
+    background-color: #1c1c1c; /* Dark Navbar */
+    color: #1e90ff; /* Blue Branding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .navbar h1 {
+    color: #1e90ff; /* Blue Branding */
+    font-weight: bold;
+    font-size: 1.8rem;
+  }
+  
+  .navbar a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  
+  .navbar a:hover {
+    color: #1e90ff; /* Blue Hover */
+  }
+  
+  /* Form Styling */
+  .form {
+    margin: 2rem auto;
+    padding: 2rem;
+    max-width: 500px;
+    background-color: #1c1c1c; /* Dark Form Background */
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  }
+  
+  .form input,
+  .form textarea {
+    resize:none;
+    display: block;
+    width: 100%;
+    background-color: #333333; /* Dark Input Fields */
+    color: #ffffff; /* White Text */
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .form input::placeholder,
+  .form textarea::placeholder {
+    color: #bbbbbb;
+  }
+  
+  .form input[type="submit"] {
+    background-color: #1e90ff; /* Blue Button */
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s;
+  }
+  
+  .form input[type="submit"]:hover {
+    background-color: #2563eb;
+    transform: scale(1.02);
+  }
+  
+  /* Notes Section */
+  .task {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 3rem auto;
+    max-width: 1200px;
+  }
+  
+  .task-card {
+    background-color: #1c1c1c; /* Dark Note Cards */
+    color: #ffffff; /* White Text */
+    padding: 1.5rem;
+    border-radius: 12px;
+    min-width: 250px;
+    max-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+    text-align: left;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .task-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.8);
+  }
+  
+  .task-card h2 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1e90ff; /* Blue Filename */
+  }
+  
+  .task-card a {
+    color: #1e90ff; /* Blue Links */
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  
+  .task-card a:hover {
+    text-decoration: underline;
+  }
+  
