@@ -1,6 +1,4 @@
-Here's the GitHub README code that includes all your requested sections, with the commands formatted to display output in a bash-style format:
 
-```markdown
 # MyNotes App
 
 A sleek and modern note-taking app with a dark-themed interface that allows users to easily create, save, and manage notes.
@@ -95,10 +93,3 @@ You can also use the following npm scripts:
   ```bash
   npm run dev
   ```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-This README includes all the setup and usage instructions for your app, formatted as you requested, with the command outputs displayed in a bash-style block.
