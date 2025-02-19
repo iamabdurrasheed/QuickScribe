@@ -26,7 +26,27 @@
 
     <div class="note-view">
         <div class="note-header">
-            <h1 class="note-title"><%= filename.replace('.txt', '') %></h1>
+            <div class="title-container">
+                <h1 class="note-title" id="noteTitle"><%= filename.replace('.txt', '') %></h1>
+                <button type="button" onclick="showRenameInput()" class="rename-btn" title="Rename note">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
+            <div id="renameInput" class="rename-input-container" style="display: none;">
+                <input 
+                    type="text" 
+                    id="newFilename" 
+                    class="rename-input"
+                    placeholder="Enter new name"
+                    onkeyup="handleKeyPress(event)"
+                >
+                <button type="button" id="saveRenameBtn" onclick="renameNote()" class="save-rename-btn">
+                    <i class="fas fa-check"></i> Save
+                </button>
+                <button type="button" onclick="cancelRename()" class="cancel-rename-btn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
         </div>
         <form action="/update/<%= filename %>" method="post" id="noteForm">
             <textarea name="Description" id="noteContent" rows="20"><%= data %></textarea>
@@ -37,12 +57,140 @@
     </div>
 
     <script>
+        // Note content change handling
         const originalContent = document.getElementById('noteContent').value;
         const saveButton = document.getElementById('saveButton');
         
         document.getElementById('noteContent').addEventListener('input', function() {
             saveButton.disabled = this.value === originalContent;
         });
+
+        // Rename functionality
+        function showRenameInput() {
+            const titleElement = document.getElementById('noteTitle');
+            const renameInput = document.getElementById('renameInput');
+            const filenameInput = document.getElementById('newFilename');
+
+            titleElement.style.display = 'none';
+            renameInput.style.display = 'flex';
+            filenameInput.value = titleElement.textContent;
+            filenameInput.focus();
+            filenameInput.select();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                renameNote();
+            } else if (event.key === 'Escape') {
+                cancelRename();
+            }
+        }
+
+        function cancelRename() {
+            const titleElement = document.getElementById('noteTitle');
+            const renameInput = document.getElementById('renameInput');
+            const filenameInput = document.getElementById('newFilename');
+
+            titleElement.style.display = 'block';
+            renameInput.style.display = 'none';
+            filenameInput.value = titleElement.textContent;
+        }
+
+        // Replace the existing renameNote function
+        function renameNote() {
+            const newFilename = document.getElementById('newFilename').value.trim();
+            const saveBtn = document.getElementById('saveRenameBtn');
+            const currentFilename = '<%= filename %>';
+
+            // Basic validation
+            if (!newFilename) {
+                showError('Please enter a filename');
+                return;
+            }
+
+            // Sanitize and validate filename
+            const sanitizedFilename = sanitizeFilename(newFilename);
+            const validationError = validateFilename(sanitizedFilename);
+            
+            if (validationError) {
+                showError(validationError);
+                return;
+            }
+
+            // Check if trying to rename to the same name
+            if (sanitizedFilename === currentFilename.replace('.txt', '')) {
+                showError('New filename must be different from current filename');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            fetch(`/rename/${encodeURIComponent(currentFilename)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    newFilename: sanitizedFilename,
+                    oldFilename: currentFilename 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message);
+                }
+                window.location.href = `/files/${encodeURIComponent(data.newFilename)}`;
+            })
+            .catch(error => {
+                showError(error.message || 'Failed to rename file');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-check"></i> Save';
+            });
+        }
+
+        // Update the showError function
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            // Remove any existing error messages
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            const container = document.querySelector('.note-header');
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Add these helper functions in your script section
+        function sanitizeFilename(filename) {
+            return filename.replace(/[^a-zA-Z0-9-_ ]/g, '');
+        }
+
+        function validateFilename(filename) {
+            const MAX_LENGTH = 255;
+            if (filename.length > MAX_LENGTH) {
+                return 'Filename is too long';
+            }
+            if (!/^[a-zA-Z0-9-_ ]+$/.test(filename)) {
+                return 'Filename contains invalid characters';
+            }
+            return null;
+        }
     </script>
 </body>
 </html>

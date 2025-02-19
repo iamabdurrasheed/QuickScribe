@@ -499,3 +499,185 @@
 .save-changes-btn i {
     font-size: 1.1rem;
 }
+
+/* Add these new styles */
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.5rem;
+}
+
+.form-header .back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.3s;
+}
+
+.form-header .back-btn:hover {
+    color: #1e90ff;
+}
+
+/* Add these new styles */
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.rename-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.rename-btn:hover {
+    color: #1e90ff;
+}
+
+.rename-form {
+    margin-top: 1rem;
+}
+
+.rename-form input {
+    background-color: #333;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+.save-rename-btn, .cancel-rename-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.save-rename-btn {
+    background-color: #1e90ff;
+    color: white;
+    margin-right: 8px;
+}
+
+.cancel-rename-btn {
+    background-color: #666;
+    color: white;
+}
+
+.save-rename-btn:hover {
+    background-color: #1976d2;
+}
+
+.cancel-rename-btn:hover {
+    background-color: #777;
+}
+
+.rename-input-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.rename-input-container input {
+    padding: 0.5rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #252525;
+    color: white;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 200px;
+}
+
+.save-rename-btn, .cancel-rename-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.save-rename-btn {
+    background-color: #1e90ff;
+    color: white;
+}
+
+.cancel-rename-btn {
+    background-color: #666;
+    color: white;
+}
+
+.save-rename-btn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.error-message {
+    background-color: #ff4444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.rename-input {
+    background-color: #252525;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 1rem;
+    min-width: 200px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.rename-input:focus {
+    border-color: #1e90ff;
+    box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.1);
+}
+
+.rename-btn {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 5px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.rename-btn:hover {
+    color: #1e90ff;
+}
