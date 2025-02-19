@@ -3,15 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>QuickScribe - <%= filename.replace('.txt', '') %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div class="main w-full min-h-screen bg-zinc-900 p-10 text-white">
-        <a class="text-blue-500 inline-block mb-10" href="/">Go Back to Home</a>
-        <h1 class="text-4xl tracking-tighter"><%= filename %></h1>
-        <p class="text-xl mt-5 font-light"><%= data %></p>
+    <nav class="navbar">
+        <div class="nav-left">
+            <button onclick="window.location.href='/'" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Quick<span class="brand-accent">Scribe</span></h1>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </div>
+    </nav>
+
+    <div class="note-view">
+        <div class="note-header">
+            <h1 class="note-title"><%= filename.replace('.txt', '') %></h1>
+        </div>
+        <form action="/update/<%= filename %>" method="post" id="noteForm">
+            <textarea name="Description" id="noteContent" rows="20"><%= data %></textarea>
+            <button type="submit" id="saveButton" disabled class="save-changes-btn">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
     </div>
-    
+
+    <script>
+        const originalContent = document.getElementById('noteContent').value;
+        const saveButton = document.getElementById('saveButton');
+        
+        document.getElementById('noteContent').addEventListener('input', function() {
+            saveButton.disabled = this.value === originalContent;
+        });
+    </script>
 </body>
 </html>

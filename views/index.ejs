@@ -3,43 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notes App</title>
+  <title>QuickScribe</title>
   <link rel="stylesheet" href="stylesheets/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <h1>MyNotes</h1>
-        <div>
+        <h1>Quick<span class="brand-accent">Scribe</span></h1>
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search notes..." onkeyup="searchNotes()">
+            </div>
+        </div>
+        <div class="nav-links">
             <a href="/">Home</a>
             <a href="/about">About</a>
             <a href="/contact">Contact</a>
         </div>
     </nav>
 
-    <!-- Notes Form -->
-    <div class="form">
+    <!-- New Note Button -->
+    <div class="new-note-container">
+        <button onclick="toggleNewNoteForm()" class="new-note-btn">
+            <i class="fas fa-plus"></i> New Note
+        </button>
+    </div>
+
+    <!-- New Note Form -->
+    <div id="newNoteForm" class="form" style="display: none;">
         <form action="/create" method="post">
-            <input type="text" name="Title" placeholder="Title">
-            <textarea name="Description" rows="5" placeholder="Write your note here..."></textarea>
+            <input type="text" name="Title" placeholder="Title" required>
+            <textarea name="Description" rows="10" placeholder="Write your note here..." required></textarea>
             <input type="submit" value="Save Note">
         </form>
     </div>
 
-    <!-- Notes Display Section -->
-    <div class="task">
+    <!-- Notes Grid -->
+    <div class="notes-grid">
         <% if(files.length > 0) { %>
             <% files.forEach((val) => { %>
-                <div class="task-card">
-                    <h2><%= val %></h2>
-                    <a href="/files/<%= val %>">Read More</a>
+                <div class="note-card" onclick="openNote('<%= val %>')" data-filename="<%= val %>">
+                    <div class="note-actions" onclick="event.stopPropagation()">
+                        <button class="favorite-btn" onclick="toggleFavorite(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="delete-btn" onclick="confirmDelete('<%= val %>')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <h2><%= val.replace('.txt', '') %></h2>
                 </div>
             <% }) %>
         <% } else { %>
-            <h3 class="task-card">No tasks yet...</h3>
+            <p class="no-notes">No notes yet...</p>
         <% } %>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this note?</p>
+            <div class="modal-buttons">
+                <button type="button" onclick="deleteNote()" class="confirm-delete">Delete</button>
+                <button type="button" onclick="closeModal()" class="cancel-delete">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let noteToDelete = '';
+
+        function openNote(filename) {
+            window.location.href = `/files/${encodeURIComponent(filename)}`;
+        }
+
+        function confirmDelete(filename) {
+            event.stopPropagation();
+            noteToDelete = filename;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function deleteNote() {
+            if (noteToDelete) {
+                fetch(`/delete/${encodeURIComponent(noteToDelete)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Find and remove the deleted note card from DOM
+                        const noteCard = document.querySelector(`.note-card[data-filename="${noteToDelete}"]`);
+                        if (noteCard) {
+                            noteCard.remove();
+                        }
+                        closeModal();
+                        // Check if there are no more notes
+                        const remainingNotes = document.querySelectorAll('.note-card');
+                        if (remainingNotes.length === 0) {
+                            document.querySelector('.notes-grid').innerHTML = '<p class="no-notes">No notes yet...</p>';
+                        }
+                    } else {
+                        console.error('Failed to delete note');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        function toggleFavorite(btn) {
+            event.stopPropagation();
+            btn.querySelector('i').classList.toggle('fas');
+            btn.querySelector('i').classList.toggle('far');
+            btn.querySelector('i').classList.toggle('favorite-active');
+        }
+
+        function toggleNewNoteForm() {
+            var newNoteForm = document.getElementById("newNoteForm");
+            newNoteForm.style.display = newNoteForm.style.display === "none" ? "block" : "none";
+        }
+
+        function searchNotes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const noteCards = document.querySelectorAll('.note-card');
+            
+            noteCards.forEach(card => {
+                const title = card.querySelector('h2').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    // Calculate similarity for sorting
+                    card.dataset.similarity = calculateSimilarity(title, searchTerm);
+                } else {
+                    card.style.display = 'none';
+                    card.dataset.similarity = 0;
+                }
+            });
+
+            // Sort notes based on similarity
+            const notesGrid = document.querySelector('.notes-grid');
+            const sortedCards = Array.from(noteCards).sort((a, b) => {
+                return b.dataset.similarity - a.dataset.similarity;
+            });
+
+            // Reorder notes
+            sortedCards.forEach(card => notesGrid.appendChild(card));
+        }
+
+        function calculateSimilarity(str1, str2) {
+            // Simple substring match score
+            if (str1.startsWith(str2)) return 2; // Prefix match gets highest priority
+            if (str1.includes(str2)) return 1;   // Contains match gets medium priority
+            return 0;                            // No match
+        }
+    </script>
 </body>
 </html>

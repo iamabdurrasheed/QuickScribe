@@ -32,6 +32,32 @@ app.post("/create",(req,res)=>{
 
 });
 
+app.post("/update/:filename", (req, res) => {
+    const newContent = req.body.Description;
+    fs.writeFile(`./files/${req.params.filename}`, newContent, (err) => {
+        if(err) {
+            res.send(err);
+        } else {
+            res.redirect("/");
+        }
+    });
+});
+
+// Update your delete route to handle AJAX request
+app.post("/delete/:filename", (req, res) => {
+    const filePath = path.join(__dirname, 'files', req.params.filename);
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: 'Failed to delete file' });
+        }
+        res.status(200).json({ success: true, message: 'File deleted successfully' });
+    });
+});
+
+app.get("/new", (req, res) => {
+    res.render("new");
+});
 
 app.listen(3000,()=>{
     console.log("server running at http:localhost:3000 ");

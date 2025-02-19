@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickScribe - New Note</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Quick<span class="brand-accent">Scribe</span></h1>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </div>
+    </nav>
+
+    <div class="form">
+        <form action="/create" method="post">
+            <input type="text" name="Title" placeholder="Title" required>
+            <textarea name="Description" rows="10" placeholder="Write your note here..." required></textarea>
+            <input type="submit" value="Save Note">
+        </form>
+    </div>
+</body>
+</html>
