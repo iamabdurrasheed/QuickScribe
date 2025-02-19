@@ -18,6 +18,11 @@
                 <input type="text" id="searchInput" placeholder="Search notes..." onkeyup="searchNotes()">
             </div>
         </div>
+        <div class="filter-container">
+            <button onclick="toggleFavoriteFilter()" id="favoriteFilterBtn" class="filter-btn">
+                <i class="far fa-heart"></i> Show Favorites
+            </button>
+        </div>
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/about">About</a>
@@ -47,7 +52,7 @@
             <% files.forEach((val) => { %>
                 <div class="note-card" onclick="openNote('<%= val %>')" data-filename="<%= val %>">
                     <div class="note-actions" onclick="event.stopPropagation()">
-                        <button class="favorite-btn" onclick="toggleFavorite(this)">
+                        <button class="favorite-btn" onclick="toggleFavorite(this, '<%= val %>')">
                             <i class="far fa-heart"></i>
                         </button>
                         <button class="delete-btn" onclick="confirmDelete('<%= val %>')">
@@ -123,11 +128,63 @@
             document.getElementById('deleteModal').style.display = 'none';
         }
 
-        function toggleFavorite(btn) {
+        let showingFavorites = false;
+
+        // Load favorites from localStorage
+        const favorites = new Set(JSON.parse(localStorage.getItem('favorites') || '[]'));
+
+        // Initialize favorite states
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.note-card').forEach(card => {
+                const filename = card.dataset.filename;
+                if (favorites.has(filename)) {
+                    const heartIcon = card.querySelector('.favorite-btn i');
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas', 'favorite-active');
+                }
+            });
+        });
+
+        function toggleFavorite(btn, filename) {
             event.stopPropagation();
-            btn.querySelector('i').classList.toggle('fas');
-            btn.querySelector('i').classList.toggle('far');
-            btn.querySelector('i').classList.toggle('favorite-active');
+            const icon = btn.querySelector('i');
+            const isNowFavorite = icon.classList.toggle('fas');
+            icon.classList.toggle('far');
+            icon.classList.toggle('favorite-active');
+
+            if (isNowFavorite) {
+                favorites.add(filename);
+            } else {
+                favorites.delete(filename);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('favorites', JSON.stringify([...favorites]));
+
+            // If showing favorites only, hide unfavorited notes
+            if (showingFavorites && !isNowFavorite) {
+                btn.closest('.note-card').style.display = 'none';
+            }
+        }
+
+        function toggleFavoriteFilter() {
+            const btn = document.getElementById('favoriteFilterBtn');
+            showingFavorites = !showingFavorites;
+            btn.classList.toggle('active');
+            
+            document.querySelectorAll('.note-card').forEach(card => {
+                const filename = card.dataset.filename;
+                if (showingFavorites) {
+                    card.style.display = favorites.has(filename) ? 'block' : 'none';
+                } else {
+                    card.style.display = 'block';
+                }
+            });
+
+            // Update button text
+            btn.innerHTML = showingFavorites ? 
+                '<i class="fas fa-heart"></i> Show All' : 
+                '<i class="far fa-heart"></i> Show Favorites';
         }
 
         function toggleNewNoteForm() {
