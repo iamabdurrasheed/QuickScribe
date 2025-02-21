@@ -1678,3 +1678,32 @@
 .showing-favorites .delete-btn {
     display: none;
 }
+
+/* Add these new styles */
+
+.favorite-filter-btn {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.favorite-filter-btn.active {
+    background: #ff4444;
+    color: white;
+}
+
+.favorite-filter-btn:hover {
+    background: #444;
+    transform: translateY(-1px);
+}
+
+.favorite-filter-btn.active:hover {
+    background: #ff3333;
+}

@@ -184,9 +184,11 @@
         async function toggleFavorites() {
             showingFavorites = !showingFavorites;
             const favoriteBtn = document.getElementById('favoriteFilterBtn');
+            favoriteBtn.classList.toggle('active');
             
             try {
                 if (showingFavorites) {
+                    // Show only favorite notes
                     favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Show All Notes';
                     const response = await fetch('/favorites');
                     const data = await response.json();
@@ -195,14 +197,9 @@
                         updateNotesGrid(data.notes, true);
                     }
                 } else {
+                    // Show all notes
                     favoriteBtn.innerHTML = '<i class="far fa-heart"></i> Show Favorites';
-                    // Fetch all notes
-                    const response = await fetch('/notes/data');
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        updateNotesGrid(data.notes, false);
-                    }
+                    window.location.reload(); // This will refresh the page and show all notes
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -242,9 +239,11 @@
                                 onclick="toggleFavorite(this, '${note._id}')">
                             <i class="${note.isFavorite ? 'fas' : 'far'} fa-heart"></i>
                         </button>
-                        <button class="delete-btn" onclick="confirmDelete('${note._id}')" title="Delete note">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        ${!isFavoriteView ? `
+                            <button class="delete-btn" onclick="confirmDelete('${note._id}')" title="Delete note">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
                     </div>
                     <h2>${note.title}</h2>
                     <p class="note-preview">${note.content.substring(0, 100)}...</p>
