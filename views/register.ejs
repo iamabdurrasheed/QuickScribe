@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickScribe - Create Account</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="brand">
+                <h1>Quick<span class="brand-accent">Scribe</span></h1>
+            </div>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
+
+            <form class="auth-form" action="/register" method="POST">
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="Username" 
+                    required 
+                    minlength="3"
+                    value="<%= typeof username !== 'undefined' ? username : '' %>"
+                >
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    required 
+                    minlength="6"
+                >
+                <input 
+                    type="password" 
+                    name="confirmPassword" 
+                    placeholder="Confirm Password" 
+                    required
+                >
+                <button type="submit">Create Account</button>
+            </form>
+
+            <div class="auth-links">
+                <p>Already have an account? <a href="/login">Login</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

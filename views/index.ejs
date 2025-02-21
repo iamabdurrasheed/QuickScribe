@@ -19,14 +19,34 @@
             </div>
         </div>
         <div class="filter-container">
-            <button onclick="toggleFavoriteFilter()" id="favoriteFilterBtn" class="filter-btn">
+            <button onclick="toggleFavorites()" id="favoriteFilterBtn" class="filter-btn">
                 <i class="far fa-heart"></i> Show Favorites
             </button>
         </div>
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
+            <div class="user-profile">
+                <button onclick="toggleProfileMenu()" class="profile-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <%= user.username %>
+                </button>
+                <div id="profileMenu" class="profile-menu">
+                    <div class="profile-header">
+                        <i class="fas fa-user"></i>
+                        <div class="profile-info">
+                            <h4><%= user.username %></h4>
+                            <small>Member since <%= new Date(user.createdAt).toLocaleDateString() %></small>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="/profile" class="profile-link">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <a href="/logout" class="profile-link">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -54,23 +74,21 @@
 
     <!-- Notes Grid -->
     <div class="notes-grid">
-        <% if(files.length > 0) { %>
-            <% files.forEach((val) => { %>
-                <div class="note-card" onclick="openNote('<%= val %>')" data-filename="<%= val %>">
-                    <div class="note-actions" onclick="event.stopPropagation()">
-                        <button class="favorite-btn" onclick="toggleFavorite(this, '<%= val %>')">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        <button class="delete-btn" onclick="confirmDelete('<%= val %>')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    <h2><%= val.replace('.txt', '') %></h2>
+        <% notes.forEach(function(note) { %>
+            <div class="note-card" onclick="openNote('<%= note._id %>')" data-noteid="<%= note._id %>">
+                <div class="note-actions" onclick="event.stopPropagation()">
+                    <button class="favorite-btn <%= note.isFavorite ? 'favorite-active' : '' %>" 
+                            onclick="toggleFavorite(this, '<%= note._id %>')">
+                        <i class="<%= note.isFavorite ? 'fas' : 'far' %> fa-heart"></i>
+                    </button>
                 </div>
-            <% }) %>
-        <% } else { %>
-            <p class="no-notes">No notes yet...</p>
-        <% } %>
+                <h2><%= note.title %></h2>
+                <p class="note-preview"><%= note.content.substring(0, 100) %>...</p>
+                <div class="note-meta">
+                    <small>Last updated: <%= new Date(note.updatedAt).toLocaleDateString() %></small>
+                </div>
+            </div>
+        <% }); %>
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -88,45 +106,54 @@
     <script>
         let noteToDelete = '';
 
-        function openNote(filename) {
-            window.location.href = `/files/${encodeURIComponent(filename)}`;
+        function openNote(noteId) {
+            window.location.href = `/notes/${noteId}`;
         }
 
-        function confirmDelete(filename) {
-            event.stopPropagation();
-            noteToDelete = filename;
-            document.getElementById('deleteModal').style.display = 'flex';
+        function confirmDelete(noteId) {
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            modal.dataset.noteId = noteId; // Store the noteId in the modal
         }
 
-        function deleteNote() {
-            if (noteToDelete) {
-                fetch(`/delete/${encodeURIComponent(noteToDelete)}`, {
-                    method: 'POST',
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        async function deleteNote() {
+            const modal = document.getElementById('deleteModal');
+            const noteId = modal.dataset.noteId;
+            
+            try {
+                const response = await fetch(`/notes/${noteId}`, {
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Find and remove the deleted note card from DOM
-                        const noteCard = document.querySelector(`.note-card[data-filename="${noteToDelete}"]`);
-                        if (noteCard) {
-                            noteCard.remove();
-                        }
-                        closeModal();
-                        // Check if there are no more notes
-                        const remainingNotes = document.querySelectorAll('.note-card');
-                        if (remainingNotes.length === 0) {
-                            document.querySelector('.notes-grid').innerHTML = '<p class="no-notes">No notes yet...</p>';
-                        }
-                    } else {
-                        console.error('Failed to delete note');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
                 });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Remove the note card from the UI
+                    const noteCard = document.querySelector(`[data-noteid="${noteId}"]`);
+                    if (noteCard) {
+                        noteCard.remove();
+                    }
+                    closeDeleteModal();
+                } else {
+                    throw new Error(data.message || 'Failed to delete note');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete note');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
             }
         }
 
@@ -136,61 +163,76 @@
 
         let showingFavorites = false;
 
-        // Load favorites from localStorage
-        const favorites = new Set(JSON.parse(localStorage.getItem('favorites') || '[]'));
+        async function toggleFavorites() {
+            const filterBtn = document.querySelector('.filter-btn');
+            const btnIcon = filterBtn.querySelector('i');
+            const btnText = filterBtn.textContent.trim();
+            showingFavorites = !showingFavorites;
+            
+            // Update button appearance
+            filterBtn.classList.toggle('active', showingFavorites);
+            btnIcon.className = showingFavorites ? 'fas fa-heart' : 'far fa-heart';
+            filterBtn.innerHTML = `${btnIcon.outerHTML} ${showingFavorites ? 'Show All' : 'Show Favorites'}`;
 
-        // Initialize favorite states
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.note-card').forEach(card => {
-                const filename = card.dataset.filename;
-                if (favorites.has(filename)) {
-                    const heartIcon = card.querySelector('.favorite-btn i');
-                    heartIcon.classList.remove('far');
-                    heartIcon.classList.add('fas', 'favorite-active');
+            try {
+                if (showingFavorites) {
+                    const response = await fetch('/favorites');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        updateNotesGrid(data.notes);
+                    }
+                } else {
+                    location.reload(); // Reset to show all notes
                 }
-            });
-        });
-
-        function toggleFavorite(btn, filename) {
-            event.stopPropagation();
-            const icon = btn.querySelector('i');
-            const isNowFavorite = icon.classList.toggle('fas');
-            icon.classList.toggle('far');
-            icon.classList.toggle('favorite-active');
-
-            if (isNowFavorite) {
-                favorites.add(filename);
-            } else {
-                favorites.delete(filename);
-            }
-
-            // Save to localStorage
-            localStorage.setItem('favorites', JSON.stringify([...favorites]));
-
-            // If showing favorites only, hide unfavorited notes
-            if (showingFavorites && !isNowFavorite) {
-                btn.closest('.note-card').style.display = 'none';
+            } catch (error) {
+                console.error('Error:', error);
             }
         }
 
-        function toggleFavoriteFilter() {
-            const btn = document.getElementById('favoriteFilterBtn');
-            showingFavorites = !showingFavorites;
-            btn.classList.toggle('active');
-            
-            document.querySelectorAll('.note-card').forEach(card => {
-                const filename = card.dataset.filename;
-                if (showingFavorites) {
-                    card.style.display = favorites.has(filename) ? 'block' : 'none';
-                } else {
-                    card.style.display = 'block';
-                }
-            });
+        async function toggleFavorite(button, noteId) {
+            try {
+                const response = await fetch(`/toggle-favorite/${noteId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
 
-            // Update button text
-            btn.innerHTML = showingFavorites ? 
-                '<i class="fas fa-heart"></i> Show All' : 
-                '<i class="far fa-heart"></i> Show Favorites';
+                if (data.success) {
+                    const icon = button.querySelector('i');
+                    icon.classList.toggle('far');
+                    icon.classList.toggle('fas');
+                    button.classList.toggle('favorite-active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateNotesGrid(notes) {
+            const notesGrid = document.querySelector('.notes-grid');
+            if (!notes.length) {
+                notesGrid.innerHTML = '<p class="no-notes">No favorite notes found</p>';
+                return;
+            }
+
+            notesGrid.innerHTML = notes.map(note => `
+                <div class="note-card" onclick="openNote('${note._id}')" data-noteid="${note._id}">
+                    <div class="note-actions" onclick="event.stopPropagation()">
+                        <button class="favorite-btn ${note.isFavorite ? 'favorite-active' : ''}" 
+                                onclick="toggleFavorite(this, '${note._id}')">
+                            <i class="${note.isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <button class="delete-btn" onclick="confirmDelete('${note._id}')" title="Delete note">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <h2>${note.title}</h2>
+                    <p class="note-preview">${note.content.substring(0, 100)}...</p>
+                    <div class="note-meta">
+                        <small>Last updated: ${new Date(note.updatedAt).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function toggleNewNoteForm() {
@@ -229,6 +271,19 @@
             if (str1.startsWith(str2)) return 2; // Prefix match gets highest priority
             if (str1.includes(str2)) return 1;   // Contains match gets medium priority
             return 0;                            // No match
+        }
+
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && !e.target.matches('.profile-btn')) {
+                    menu.classList.remove('active');
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
         }
     </script>
 </body>
