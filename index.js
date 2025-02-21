@@ -633,3 +633,5 @@ app.listen(1234, () => {
     console.error("Server error:", err);
 });
 
+module.exports = app;
+
