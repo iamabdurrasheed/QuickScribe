@@ -9,6 +9,7 @@ const Note = require("./models/Note");
 const app = express();
 const path = require("path");
 const debug = require("debug")("mynotes:server");
+const fs = require('fs').promises;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -411,9 +412,14 @@ app.get("/new", (req, res) => {
 (async () => {
     try {
         await fs.access('./files');
+        console.log('Files directory exists');
     } catch {
-        await fs.mkdir('./files');
-        console.log('Created files directory');
+        try {
+            await fs.mkdir('./files');
+            console.log('Created files directory');
+        } catch (error) {
+            console.error('Error creating files directory:', error);
+        }
     }
 })();
 
