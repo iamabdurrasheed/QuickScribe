@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -15,7 +16,7 @@ app.use(express.static(path.join(__dirname,'public')));
 app.set("view engine",'ejs');
 
 // Add MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/mynotes', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/mynotes', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -627,7 +628,7 @@ app.get('/notes/data', requireAuth, async (req, res) => {
 });
 
 // Start the server
-app.listen(1234, () => {
+app.listen(3000, () => {
     console.log("Server running at http://localhost:1234");
 }).on("error", (err) => {
     console.error("Server error:", err);
