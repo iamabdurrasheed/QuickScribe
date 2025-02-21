@@ -167,32 +167,25 @@ app.post('/login', async (req, res) => {
 // Update the notes route to fetch user-specific notes
 app.get('/notes', requireAuth, async (req, res) => {
     try {
-        // Verify user session
-        if (!req.session.userId) {
-            return res.redirect('/login');
-        }
-
-        // Fetch user's notes
-        const notes = await Note.find({ 
-            userId: req.session.userId 
-        })
-        .sort({ updatedAt: -1 })
-        .lean()
-        .exec();
+        const [notes, user] = await Promise.all([
+            Note.find({ userId: req.session.userId })
+                .sort({ updatedAt: -1 })
+                .lean()
+                .exec(),
+            User.findById(req.session.userId)
+        ]);
 
         if (!notes) {
-            console.error('Failed to fetch notes');
             return res.status(500).render('error', { 
                 message: 'Failed to fetch notes' 
             });
         }
 
-        // Render the notes page
         res.render('index', { 
             notes: notes,
             user: {
-                id: req.session.userId,
-                username: req.session.username
+                id: user._id,
+                username: user.username  // Make sure username is passed
             }
         });
 
@@ -207,30 +200,28 @@ app.get('/notes', requireAuth, async (req, res) => {
 // Update the show note route
 app.get("/notes/:noteId", requireAuth, async (req, res) => {
     try {
-        const [note, user] = await Promise.all([
-            Note.findOne({
-                _id: req.params.noteId,
-                userId: req.session.userId
-            }),
-            User.findById(req.session.userId)
-        ]);
+        // Get the user data first
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        // Get the note
+        const note = await Note.findOne({
+            _id: req.params.noteId,
+            userId: req.session.userId
+        });
 
         if (!note) {
             return res.redirect('/notes');
         }
 
-        // Format the date before sending
-        const memberSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }) : 'Not available';
-
+        // Pass both note and user data to the template
         res.render("show", {
             note: note,
             user: {
-                username: user.username,
-                memberSince: memberSince
+                username: user.username,  // Pass the username from the actual user object
+                id: user._id
             }
         });
     } catch (err) {
@@ -609,6 +600,28 @@ app.post('/update/:noteId', requireAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to update note'
+        });
+    }
+});
+
+// Add this new route to fetch all notes as JSON
+app.get('/notes/data', requireAuth, async (req, res) => {
+    try {
+        const notes = await Note.find({ 
+            userId: req.session.userId 
+        })
+        .sort({ updatedAt: -1 })
+        .lean();
+
+        res.json({
+            success: true,
+            notes: notes
+        });
+    } catch (error) {
+        console.error('Error fetching notes:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch notes'
         });
     }
 });

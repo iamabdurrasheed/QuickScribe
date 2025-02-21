@@ -24,31 +24,48 @@
             </button>
         </div>
         <div class="nav-links">
-            <div class="user-profile">
-                <button onclick="toggleProfileMenu()" class="profile-btn">
-                    <i class="fas fa-user-circle"></i>
-                    <%= user.username %>
-                </button>
-                <div id="profileMenu" class="profile-menu">
-                    <div class="profile-header">
-                        <i class="fas fa-user"></i>
-                        <div class="profile-info">
-                            <h4><%= user.username %></h4>
-                            <small>Member since <%= new Date(user.createdAt).toLocaleDateString() %></small>
-                        </div>
-                    </div>
-                    <div class="profile-actions">
-                        <a href="/profile" class="profile-link">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                        <a href="/logout" class="profile-link">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    </div>
+    <div class="profile-dropdown">
+        <button class="profile-btn" onclick="toggleDropdown(event)">
+            <i class="fas fa-user-circle"></i>
+            <span class="profile-name" id="profileUsername"><%= user.username %></span>
+            <i class="fas fa-caret-down"></i>
+        </button>
+        <div class="dropdown-menu" id="profileDropdown">
+            <div class="profile-header">
+                <i class="fas fa-user-circle"></i>
+                <div class="profile-info">
+                    <h4><%= user.username %></h4>
                 </div>
             </div>
+            <div class="dropdown-divider"></div>
+            <a href="/profile">
+                <i class="fas fa-cog"></i>
+                Settings
+            </a>
+            <a href="/logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
         </div>
+    </div>
+</div>
     </nav>
+
+    <!-- Add this right after your profile button -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const username = '<%= user.username %>';
+            console.log('Username loaded:', username);
+            
+            const profileNameElement = document.getElementById('profileUsername');
+            if (profileNameElement) {
+                console.log('Profile element found, setting username:', username);
+                profileNameElement.textContent = username;
+            } else {
+                console.error('Profile username element not found');
+            }
+        });
+    </script>
 
     <!-- New Note Button -->
     <div class="new-note-container">
@@ -163,27 +180,29 @@
 
         let showingFavorites = false;
 
+        // Update the toggleFavorites function
         async function toggleFavorites() {
-            const filterBtn = document.querySelector('.filter-btn');
-            const btnIcon = filterBtn.querySelector('i');
-            const btnText = filterBtn.textContent.trim();
             showingFavorites = !showingFavorites;
+            const favoriteBtn = document.getElementById('favoriteFilterBtn');
             
-            // Update button appearance
-            filterBtn.classList.toggle('active', showingFavorites);
-            btnIcon.className = showingFavorites ? 'fas fa-heart' : 'far fa-heart';
-            filterBtn.innerHTML = `${btnIcon.outerHTML} ${showingFavorites ? 'Show All' : 'Show Favorites'}`;
-
             try {
                 if (showingFavorites) {
+                    favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Show All Notes';
                     const response = await fetch('/favorites');
                     const data = await response.json();
                     
                     if (data.success) {
-                        updateNotesGrid(data.notes);
+                        updateNotesGrid(data.notes, true);
                     }
                 } else {
-                    location.reload(); // Reset to show all notes
+                    favoriteBtn.innerHTML = '<i class="far fa-heart"></i> Show Favorites';
+                    // Fetch all notes
+                    const response = await fetch('/notes/data');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        updateNotesGrid(data.notes, false);
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -208,10 +227,11 @@
             }
         }
 
-        function updateNotesGrid(notes) {
+        // Update the updateNotesGrid function
+        function updateNotesGrid(notes, isFavoriteView) {
             const notesGrid = document.querySelector('.notes-grid');
-            if (!notes.length) {
-                notesGrid.innerHTML = '<p class="no-notes">No favorite notes found</p>';
+            if (!notes || notes.length === 0) {
+                notesGrid.innerHTML = `<p class="no-notes">${isFavoriteView ? 'No favorite notes found' : 'No notes found'}</p>`;
                 return;
             }
 
@@ -273,18 +293,45 @@
             return 0;                            // No match
         }
 
-        function toggleProfileMenu() {
-            const menu = document.getElementById('profileMenu');
-            menu.classList.toggle('active');
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function closeMenu(e) {
-                if (!menu.contains(e.target) && !e.target.matches('.profile-btn')) {
-                    menu.classList.remove('active');
-                    document.removeEventListener('click', closeMenu);
-                }
-            });
+        function toggleDropdown(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = event.currentTarget;
+            dropdown.classList.toggle('show');
+            profileBtn.classList.toggle('active');
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = document.querySelector('.profile-btn');
+            
+            if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+                profileBtn.classList.remove('active');
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        document.getElementById('profileDropdown').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // Verify username on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const username = '<%= user.username %>';
+            const profileUsername = document.getElementById('profileUsername');
+            
+            if (!username) {
+                console.error('Username not loaded');
+            }
+            
+            if (profileUsername) {
+                profileUsername.textContent = username;
+            }
+        });
     </script>
 </body>
 </html>

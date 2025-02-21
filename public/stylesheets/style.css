@@ -1059,25 +1059,35 @@
 }
 
 .profile-btn {
-    background: none;
+    background: #333;
     border: none;
     color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
 }
 
-.profile-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.profile-name {
+    color: white;
+    font-weight: 500;
+    display: inline-block; /* Ensure visibility */
+    margin: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Limit width for very long usernames */
 }
 
 .profile-btn i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.profile-btn:hover {
+    background: #444;
 }
 
 .profile-menu {
@@ -1336,24 +1346,24 @@
 }
 
 .profile-btn {
-    background: none;
+    background: #333;
     border: none;
     color: white;
     padding: 8px 16px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
 }
 
-.profile-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+.profile-btn.active {
+    background: #444;
 }
 
 .profile-name {
+    color: white;
     font-weight: 500;
 }
 
@@ -1364,16 +1374,106 @@
     background: #252525;
     border-radius: 8px;
     min-width: 220px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     display: none;
     z-index: 1000;
     margin-top: 8px;
     border: 1px solid #333;
 }
 
+.dropdown-menu.show {
+    display: block;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add these new styles */
+
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 16px;
+}
+
+.profile-btn {
+    background: #333;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.profile-name {
+    color: white;
+    font-weight: 500;
+    display: inline-block; /* Ensure visibility */
+    margin: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Limit width for very long usernames */
+}
+
+.profile-btn i {
+    font-size: 1.2rem;
+}
+
+.profile-btn:hover {
+    background: #444;
+}
+
+.profile-btn i.fa-user-circle {
+    font-size: 1.2rem;
+    color: #1e90ff;
+}
+
+.profile-btn i.fa-chevron-down {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.profile-btn.active i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #2a2a2a;
+    border-radius: 8px;
+    min-width: 220px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 1px solid #404040;
+    display: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
 .profile-header {
     padding: 16px;
-    border-bottom: 1px solid #333;
+    background: #333;
+    border-bottom: 1px solid #404040;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1391,36 +1491,41 @@
     font-weight: 600;
 }
 
-.profile-info small {
-    color: #999;
-    font-size: 0.8rem;
-    display: block;
-    margin-top: 2px;
-}
-
 .dropdown-divider {
     height: 1px;
-    background: #333;
-    margin: 8px 0;
+    background: #404040;
+    margin: 4px 0;
 }
 
 .dropdown-menu a {
     padding: 12px 16px;
-    color: white;
+    color: #fff;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s;
+    gap: 10px;
+    transition: all 0.2s ease;
 }
 
 .dropdown-menu a:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #3a3a3a;
 }
 
-.dropdown-menu.show {
-    display: block;
-    animation: fadeIn 0.2s ease-out;
+.dropdown-menu a i {
+    width: 16px;
+    text-align: center;
+    color: #888;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Delete button styles */
@@ -1557,4 +1662,19 @@
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+.dropdown-arrow {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+    margin-left: 4px;
+}
+
+.profile-btn.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Hide delete button when showing favorites */
+.showing-favorites .delete-btn {
+    display: none;
 }

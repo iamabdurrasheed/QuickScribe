@@ -21,8 +21,8 @@
             <div class="profile-dropdown">
                 <button class="profile-btn" onclick="toggleDropdown(event)">
                     <i class="fas fa-user-circle"></i>
-                    <span class="profile-name"><%= user.username %></span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span class="profile-name" id="profileUsername"><%= user.username %></span>
+                    <i class="fas fa-caret-down"></i> <!-- Changed from fa-chevron-down to fa-caret-down -->
                 </button>
                 <div class="dropdown-menu" id="profileDropdown">
                     <div class="profile-header">
@@ -260,20 +260,23 @@
 
         // Add inside your existing <script> tag// Add to your existing script tag
         function toggleDropdown(event) {
-        if (event) {
-            event.stopPropagation();
-        }
-        const dropdown = document.getElementById('profileDropdown');
-        dropdown.classList.toggle('show');
+            if (event) {
+                event.stopPropagation();
+            }
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = event.currentTarget;
+            dropdown.classList.toggle('show');
+            profileBtn.classList.toggle('active');
         }
 
-    // Close dropdown when clicking outside
+        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('profileDropdown');
             const profileBtn = document.querySelector('.profile-btn');
     
             if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
                 dropdown.classList.remove('show');
+                profileBtn.classList.remove('active');
             }
         });
 
@@ -320,6 +323,21 @@
                 closeDeleteModal();
             }
         }
+
+        // Add inside your DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verify user data is loaded
+            const username = '<%= user.username %>';
+            const profileUsername = document.getElementById('profileUsername');
+            
+            if (!username) {
+                console.error('Username not loaded');
+            }
+            
+            if (profileUsername) {
+                profileUsername.textContent = username;
+            }
+        });
     </script>
 </body>
 </html>
