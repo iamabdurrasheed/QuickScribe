@@ -17,8 +17,15 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
 // MongoDB Connection
+const MONGODB_URI = process.env.NODE_ENV === 'production'
+  ? process.env.MONGO_URI
+  : 'mongodb://127.0.0.1:27017/mynotes';
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => debug("✅ MongoDB connected successfully"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
@@ -32,8 +39,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      collectionName: "sessions",
+      mongoUrl: MONGODB_URI,  // Use the same MONGODB_URI constant
+      collectionName: "sessions"
     }),
     cookie: {
       secure: process.env.NODE_ENV === "production",
@@ -131,7 +138,7 @@ app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-        
+                
         if (!user || !await bcrypt.compare(password, user.password)) {
             return res.render('login', { error: 'Invalid credentials' });
         }
@@ -158,7 +165,7 @@ app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
-        
+                
         if (!user || !await bcrypt.compare(password, user.password)) {
             return res.status(401).send('Invalid credentials');
         }
@@ -536,7 +543,7 @@ app.post('/forgot-password', async (req, res) => {
         await user.save();
 
         // Send reset email (implement your email sending logic here)
-        
+           
         res.render('forgot-password', { success: 'Password reset instructions sent to your email' });
     } catch (error) {
         res.render('forgot-password', { error: 'Failed to process request' });
@@ -639,7 +646,7 @@ app.get('/notes/data', requireAuth, async (req, res) => {
 
 // Start the server
 app.listen(3000, () => {
-    console.log("Server running at http://localhost:1234");
+    console.log("Server running at http://localhost:3000");
 }).on("error", (err) => {
     console.error("Server error:", err);
 });
