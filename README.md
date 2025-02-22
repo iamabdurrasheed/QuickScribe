@@ -1,5 +1,5 @@
 
-# MyNotes App
+# QuickScribe App
 
 A sleek and modern note-taking app with a dark-themed interface that allows users to easily create, save, and manage notes.
 
