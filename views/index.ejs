@@ -20,7 +20,7 @@
         </div>
         <div class="filter-container">
             <button onclick="toggleFavorites()" id="favoriteFilterBtn" class="filter-btn">
-                <i class="far fa-heart"></i> Show Favorites
+                <i class="far fa-star"></i> Show Importants
             </button>
         </div>
         <div class="nav-links">
@@ -96,7 +96,7 @@
                 <div class="note-actions" onclick="event.stopPropagation()">
                     <button class="favorite-btn <%= note.isFavorite ? 'favorite-active' : '' %>" 
                             onclick="toggleFavorite(this, '<%= note._id %>')">
-                        <i class="<%= note.isFavorite ? 'fas' : 'far' %> fa-heart"></i>
+                        <i class="<%= note.isFavorite ? 'fas' : 'far' %> fa-star"></i>
                     </button>
                 </div>
                 <h2><%= note.title %></h2>
@@ -187,9 +187,10 @@
             favoriteBtn.classList.toggle('active');
             
             try {
+                // Update the button text in the toggleFavorites function:
                 if (showingFavorites) {
                     // Show only favorite notes
-                    favoriteBtn.innerHTML = '<i class="fas fa-heart"></i> Show All Notes';
+                    favoriteBtn.innerHTML = '<i class="fas fa-star"></i> Show All Notes';
                     const response = await fetch('/favorites');
                     const data = await response.json();
                     
@@ -198,8 +199,8 @@
                     }
                 } else {
                     // Show all notes
-                    favoriteBtn.innerHTML = '<i class="far fa-heart"></i> Show Favorites';
-                    window.location.reload(); // This will refresh the page and show all notes
+                    favoriteBtn.innerHTML = '<i class="far fa-star"></i> Show Importants';
+                    window.location.reload();
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -228,7 +229,7 @@
         function updateNotesGrid(notes, isFavoriteView) {
             const notesGrid = document.querySelector('.notes-grid');
             if (!notes || notes.length === 0) {
-                notesGrid.innerHTML = `<p class="no-notes">${isFavoriteView ? 'No favorite notes found' : 'No notes found'}</p>`;
+                notesGrid.innerHTML = `<p class="no-notes">${isFavoriteView ? 'No important notes found' : 'No notes found'}</p>`;
                 return;
             }
 
@@ -237,7 +238,7 @@
                     <div class="note-actions" onclick="event.stopPropagation()">
                         <button class="favorite-btn ${note.isFavorite ? 'favorite-active' : ''}" 
                                 onclick="toggleFavorite(this, '${note._id}')">
-                            <i class="${note.isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                            <i class="${note.isFavorite ? 'fas' : 'far'} fa-star"></i>
                         </button>
                         ${!isFavoriteView ? `
                             <button class="delete-btn" onclick="confirmDelete('${note._id}')" title="Delete note">

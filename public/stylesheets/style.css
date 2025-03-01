@@ -254,7 +254,7 @@
 }
 
 .favorite-btn.favorite-active i {
-    color: #ff4444;
+    color: #FFD700; /* Changed from #ff4444 to gold color */
 }
 
 .favorite-btn:hover {
@@ -1695,8 +1695,8 @@
 }
 
 .favorite-filter-btn.active {
-    background: #ff4444;
-    color: white;
+    background: #FFD700; /* Changed from #ff4444 to gold color */
+    color: black; /* Better contrast with yellow background */
 }
 
 .favorite-filter-btn:hover {
@@ -1705,5 +1705,5 @@
 }
 
 .favorite-filter-btn.active:hover {
-    background: #ff3333;
+    background: #FFC800; /* Changed from #ff3333 to darker gold */
 }
