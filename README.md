@@ -1,7 +1,9 @@
 
 # QuickScribe App
 
-A sleek and modern note-taking app with a dark-themed interface that allows users to easily create, save, and manage notes.
+A sleek and modern note-taking app with a dark-themed interface that enables users to effortlessly create, save, update, delete, and manage their notes. It also allows users to mark notes as important and view them separately. Users can create accounts, access their sessions, and manage their notes efficiently.
+
+Tech Stack: EJS, Node.js, MongoDB (database).
 
 ## Table of Contents
 
